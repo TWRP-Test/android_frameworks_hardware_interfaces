@@ -5,3 +5,9 @@ package {
 hidl_package_root {
     name: "android.frameworks",
 }
+
+dirgroup {
+    name: "trusty_dirgroup_frameworks_hardware_interfaces",
+    dirs: ["."],
+    visibility: ["//trusty/vendor/google/aosp/scripts"],
+}
