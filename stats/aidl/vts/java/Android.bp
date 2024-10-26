@@ -15,6 +15,7 @@
 //
 
 package {
+    default_team: "trendy_team_android_telemetry_client_infra",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -40,7 +41,7 @@ java_test_host {
     static_libs: [
         "cts-statsd-atom-host-test-utils",
     ],
-    data: [
+    device_common_data: [
         ":VtsVendorAtomJavaTest",
     ],
     proto: {
