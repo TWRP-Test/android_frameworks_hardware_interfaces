@@ -9,9 +9,9 @@ aidl_interface {
     stability: "vintf",
     imports: [
         "android.frameworks.cameraservice.common-V1",
-        "android.frameworks.cameraservice.device-V2",
+        "android.frameworks.cameraservice.device-V3",
     ],
-    frozen: true,
+    frozen: false,
     backend: {
         cpp: {
             enabled: false,

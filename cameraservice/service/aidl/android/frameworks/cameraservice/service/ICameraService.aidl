@@ -108,4 +108,25 @@ interface ICameraService {
      *         the specific failure.
      */
     void removeListener(in ICameraServiceListener listener);
+
+    /**
+     * connectDeviceV2
+     *
+     * Return an ICameraDeviceUser interface for the requested cameraId.
+     *
+     * Note: The client must have camera permissions to call this method
+     *       successfully.
+     *
+     * @param callback the ICameraDeviceCallback interface which will get called
+     *        the cameraserver when capture is started, results are received
+     *        etc.
+     * @param cameraId the cameraId of the camera device to connect to.
+     * @param sharedMode set to true to open the camera in shared mode.
+     *
+     * @throws ServiceSpecificException on failure with error code set to Status corresponding to
+     *         the specific failure.
+     * @return ICameraDeviceUser interface to the camera device requested.
+     */
+    ICameraDeviceUser connectDeviceV2(in ICameraDeviceCallback callback,
+        in String cameraId, in boolean sharedMode);
 }

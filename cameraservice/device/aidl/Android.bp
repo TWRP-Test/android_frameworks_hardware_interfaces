@@ -15,7 +15,7 @@ aidl_interface {
     include_dirs: [
         "frameworks/native/aidl/gui",
     ],
-    frozen: true,
+    frozen: false,
     backend: {
         cpp: {
             enabled: false,

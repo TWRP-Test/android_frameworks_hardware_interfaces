@@ -262,4 +262,12 @@ interface ICameraDeviceUser {
      *      Status::INVALID_OPERATION if there are active repeating requests.
      */
     void waitUntilIdle();
+
+    /**
+     * Get the client status as primary or secondary when camera is opened in shared mode.
+     *
+     * @return true if this is primary client when camera is opened in shared mode.
+     *         false if another higher priority client with primary access is also using the camera.
+     */
+    boolean isPrimaryClient();
 }

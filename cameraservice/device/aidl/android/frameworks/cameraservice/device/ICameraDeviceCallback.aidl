@@ -83,4 +83,15 @@ oneway interface ICameraDeviceCallback {
      */
     void onResultReceived(in CaptureMetadataInfo result, in CaptureResultExtras resultExtras,
         in PhysicalCaptureResultInfo[] physicalCaptureResultInfos);
+
+    /**
+     * Notify registered clients about client access priority changes for the camera device
+     * opened in shared mode.
+     * If the client priority changed from secondary to primary,then it can now
+     * create capture request and change the capture request parameters. If client priority
+     * changed from primary to secondary, that implies that a higher priority client has also
+     * opened the camera in shared mode and the new client is now a primary client.
+     */
+    void onClientSharedAccessPriorityChanged(boolean primaryClient);
+
 }

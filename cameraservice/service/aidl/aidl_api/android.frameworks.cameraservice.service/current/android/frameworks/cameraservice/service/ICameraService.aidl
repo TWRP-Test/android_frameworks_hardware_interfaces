@@ -39,4 +39,5 @@ interface ICameraService {
   android.frameworks.cameraservice.device.CameraMetadata getCameraCharacteristics(in String cameraId);
   android.frameworks.cameraservice.common.ProviderIdAndVendorTagSections[] getCameraVendorTagSections();
   void removeListener(in android.frameworks.cameraservice.service.ICameraServiceListener listener);
+  android.frameworks.cameraservice.device.ICameraDeviceUser connectDeviceV2(in android.frameworks.cameraservice.device.ICameraDeviceCallback callback, in String cameraId, in boolean sharedMode);
 }

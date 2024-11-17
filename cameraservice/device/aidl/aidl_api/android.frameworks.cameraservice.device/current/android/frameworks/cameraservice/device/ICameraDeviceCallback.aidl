@@ -40,4 +40,5 @@ interface ICameraDeviceCallback {
   oneway void onPrepared(in int streamId);
   oneway void onRepeatingRequestError(in long lastFrameNumber, in int repeatingRequestId);
   oneway void onResultReceived(in android.frameworks.cameraservice.device.CaptureMetadataInfo result, in android.frameworks.cameraservice.device.CaptureResultExtras resultExtras, in android.frameworks.cameraservice.device.PhysicalCaptureResultInfo[] physicalCaptureResultInfos);
+  oneway void onClientSharedAccessPriorityChanged(boolean primaryClient);
 }
