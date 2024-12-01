@@ -139,7 +139,6 @@ class CameraServiceListener : public BnCameraServiceListener {
 class CameraDeviceCallback : public BnCameraDeviceCallback {
    public:
     enum LocalCameraDeviceStatus {
-        IDLE,
         ERROR,
         RUNNING,
         RESULT_RECEIVED,
@@ -156,6 +155,7 @@ class CameraDeviceCallback : public BnCameraDeviceCallback {
     mutable Mutex mLock;
     mutable Condition mStatusCondition;
     mutable Condition mPreparedCondition;
+    mutable bool mIsIdle = false;
 
    public:
     CameraDeviceCallback() {}
@@ -173,8 +173,7 @@ class CameraDeviceCallback : public BnCameraDeviceCallback {
 
     ndk::ScopedAStatus onDeviceIdle() override {
         Mutex::Autolock l(mLock);
-        mLastStatus = IDLE;
-        mStatusesHit.push_back(mLastStatus);
+        mIsIdle = true;
         mStatusCondition.broadcast();
         return ndk::ScopedAStatus::ok();
     }
@@ -183,6 +182,7 @@ class CameraDeviceCallback : public BnCameraDeviceCallback {
                                         int64_t /*in_timestamp*/) override {
         Mutex::Autolock l(mLock);
         mLastStatus = RUNNING;
+        mIsIdle = false;
         mStatusesHit.push_back(mLastStatus);
         mStatusCondition.broadcast();
         return ndk::ScopedAStatus::ok();
@@ -234,24 +234,30 @@ class CameraDeviceCallback : public BnCameraDeviceCallback {
     }
 
     // Test helper functions:
-    bool waitForStatus(LocalCameraDeviceStatus status) const {
+    bool waitForStatus(LocalCameraDeviceStatus status, int count) const {
         Mutex::Autolock l(mLock);
-        if (mLastStatus == status) {
-            return true;
-        }
-
-        while (std::find(mStatusesHit.begin(), mStatusesHit.end(), status) == mStatusesHit.end()) {
+        while (std::count(mStatusesHit.begin(), mStatusesHit.end(), status) < count) {
             if (mStatusCondition.waitRelative(mLock, IDLE_TIMEOUT) != android::OK) {
                 mStatusesHit.clear();
                 return false;
             }
         }
         mStatusesHit.clear();
-
         return true;
     }
 
-    bool waitForIdle() const { return waitForStatus(IDLE); }
+    // There is a *very* slim change of onCaptureStarted gets delayed after onIdle in
+    // cameraserver. If that happens, this wait will become invalid.
+    bool waitForIdle() const {
+        Mutex::Autolock l(mLock);
+        while (!mIsIdle) {
+            if (mStatusCondition.waitRelative(mLock, IDLE_TIMEOUT) != android::OK) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 };
 
 static bool convertFromAidlCloned(const AidlCameraMetadata& metadata, CameraMetadata* rawMetadata) {
@@ -515,7 +521,7 @@ class VtsAidlCameraServiceTargetTest : public ::testing::TestWithParam<std::stri
             EXPECT_TRUE(ret.isOk());
             EXPECT_GE(info.requestId, 0);
             EXPECT_TRUE(callbacks->waitForStatus(
-                CameraDeviceCallback::LocalCameraDeviceStatus::RESULT_RECEIVED));
+                CameraDeviceCallback::LocalCameraDeviceStatus::RESULT_RECEIVED, kNumRequests));
             EXPECT_TRUE(callbacks->waitForIdle());
 
             // Test repeating requests
@@ -531,7 +537,7 @@ class VtsAidlCameraServiceTargetTest : public ::testing::TestWithParam<std::stri
             ret = deviceRemote->submitRequestList({captureRequest}, true, &info);
             EXPECT_TRUE(ret.isOk());
             EXPECT_TRUE(callbacks->waitForStatus(
-                CameraDeviceCallback::LocalCameraDeviceStatus::RESULT_RECEIVED));
+                CameraDeviceCallback::LocalCameraDeviceStatus::RESULT_RECEIVED, 1));
 
             int64_t lastFrameNumber = -1;
             ret = deviceRemote->cancelRepeatingRequest(&lastFrameNumber);
