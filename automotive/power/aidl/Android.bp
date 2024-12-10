@@ -95,6 +95,8 @@ aidl_interface {
     srcs: [
         "android/frameworks/automotive/power/CarPowerState.aidl",
         "android/frameworks/automotive/power/ICarPowerStateChangeListener.aidl",
+        "android/frameworks/automotive/power/ICarPowerStateChangeListenerWithCompletion.aidl",
+        "android/frameworks/automotive/power/ICompletablePowerStateChangeFuture.aidl",
     ],
     stability: "vintf",
     backend: {
