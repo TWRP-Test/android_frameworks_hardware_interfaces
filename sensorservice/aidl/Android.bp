@@ -9,7 +9,7 @@ aidl_interface {
     srcs: ["android/frameworks/sensorservice/*.aidl"],
     stability: "vintf",
     imports: [
-        "android.hardware.sensors-V2",
+        "android.hardware.sensors-V3",
         "android.hardware.common-V2",
     ],
     backend: {
@@ -24,7 +24,7 @@ aidl_interface {
         {
             version: "1",
             imports: [
-                "android.hardware.sensors-V2",
+                "android.hardware.sensors-V3",
                 "android.hardware.common-V2",
             ],
         },

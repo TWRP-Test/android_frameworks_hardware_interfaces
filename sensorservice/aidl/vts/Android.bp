@@ -29,7 +29,7 @@ cc_test {
     shared_libs: [
         "libcutils",
         "libbinder_ndk",
-        "android.hardware.sensors-V2-ndk",
+        "android.hardware.sensors-V3-ndk",
         "android.frameworks.sensorservice-V1-ndk",
     ],
     static_libs: [
