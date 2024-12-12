@@ -88,3 +88,25 @@ aidl_interface {
     ],
     frozen: true,
 }
+
+aidl_interface {
+    name: "android.frameworks.automotive.power",
+    vendor_available: true,
+    srcs: [
+        "android/frameworks/automotive/power/CarPowerState.aidl",
+        "android/frameworks/automotive/power/ICarPowerStateChangeListener.aidl",
+    ],
+    stability: "vintf",
+    backend: {
+        java: {
+            sdk_version: "module_current",
+            min_sdk_version: "35", // TODO(b/383348133): Make 36 once that version is available
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.car.framework",
+            ],
+            enabled: true,
+        },
+    },
+    frozen: false,
+}
