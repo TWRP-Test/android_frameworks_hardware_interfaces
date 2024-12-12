@@ -94,11 +94,15 @@ aidl_interface {
     vendor_available: true,
     srcs: [
         "android/frameworks/automotive/power/CarPowerState.aidl",
+        "android/frameworks/automotive/power/ICarPowerServer.aidl",
         "android/frameworks/automotive/power/ICarPowerStateChangeListener.aidl",
         "android/frameworks/automotive/power/ICarPowerStateChangeListenerWithCompletion.aidl",
         "android/frameworks/automotive/power/ICompletablePowerStateChangeFuture.aidl",
     ],
     stability: "vintf",
+    imports: [
+        "android.frameworks.automotive.powerpolicy-V3",
+    ],
     backend: {
         java: {
             sdk_version: "module_current",
