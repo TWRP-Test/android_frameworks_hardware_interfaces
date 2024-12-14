@@ -23,10 +23,13 @@ cc_test {
     defaults: [
         "VtsHalTargetTestDefaults",
         "use_libaidlvintf_gtest_helper_static",
+        "android.hardware.graphics.allocator-ndk_shared",
+        "android.hardware.graphics.common-ndk_shared",
     ],
     tidy_timeout_srcs: ["VtsHalSensorManagerTargetTest.cpp"],
     srcs: ["VtsHalSensorManagerTargetTest.cpp"],
     shared_libs: [
+        "libui",
         "libcutils",
         "libbinder_ndk",
         "android.hardware.sensors-V3-ndk",

@@ -18,6 +18,10 @@
 #include <aidl/Gtest.h>
 #include <aidl/Vintf.h>
 #include <aidl/android/frameworks/sensorservice/ISensorManager.h>
+#include <aidl/android/frameworks/sensorservice/BnEventQueueCallback.h>
+#include <aidl/android/frameworks/sensorservice/IEventQueue.h>
+#include <aidl/android/hardware/graphics/common/BufferUsage.h>
+#include <aidl/android/hardware/graphics/common/PixelFormat.h>
 #include <aidl/sensors/convert.h>
 #include <android-base/logging.h>
 #include <android-base/result.h>
@@ -28,13 +32,18 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <sys/mman.h>
-
+#include <ui/GraphicBufferAllocator.h>
+#include <ui/GraphicBuffer.h>
 #include <chrono>
 #include <thread>
 
+using aidl::android::frameworks::sensorservice::BnEventQueueCallback;
+using aidl::android::frameworks::sensorservice::IEventQueue;
 using aidl::android::frameworks::sensorservice::IDirectReportChannel;
 using aidl::android::frameworks::sensorservice::ISensorManager;
 using aidl::android::hardware::common::Ashmem;
+using aidl::android::hardware::graphics::common::BufferUsage;
+using aidl::android::hardware::graphics::common::PixelFormat;
 using aidl::android::hardware::sensors::Event;
 using aidl::android::hardware::sensors::ISensors;
 using aidl::android::hardware::sensors::SensorInfo;
@@ -43,6 +52,29 @@ using ::android::sp;
 using ndk::ScopedAStatus;
 using ndk::ScopedFileDescriptor;
 using ::testing::Contains;
+
+class EventCallback : public BnEventQueueCallback {
+   public:
+    EventCallback() {}
+    ~EventCallback() {}
+    ndk::ScopedAStatus onEvent(const Event &e) override {
+        std::unique_lock<std::mutex> lck(mtx);
+        if (e.sensorType == SensorType::ACCELEROMETER && !eventReceived) {
+            eventReceived = true;
+            cv.notify_all();
+        }
+        return ndk::ScopedAStatus::ok();
+    }
+    void waitForEvent() {
+        std::unique_lock<std::mutex> lck(mtx);
+        cv.wait_for(lck, std::chrono::seconds(1), [this](){ return eventReceived; });
+        EXPECT_TRUE(eventReceived) << "wait event timeout";
+    }
+   private:
+    std::mutex mtx;
+    std::condition_variable_any cv;
+    bool eventReceived = false;
+};
 
 static inline ::testing::AssertionResult isOk(const ScopedAStatus& status) {
     return status.isOk() ? ::testing::AssertionSuccess()
@@ -252,6 +284,57 @@ TEST_P(SensorManagerTest, Accelerometer) {
                 << "configure token and sensor handle don't match.";
         }
     }
+}
+
+TEST_P(SensorManagerTest, CreateGrallocDirectChannel) {
+    std::vector<SensorInfo> sensorList;
+    auto res = GetSensorList(&sensorList, [](const auto& info) {
+        return info.flags & SensorInfo::SENSOR_FLAG_BITS_DIRECT_CHANNEL_GRALLOC;
+    });
+    ASSERT_OK(res);
+    if (sensorList.empty()) {
+        GTEST_SKIP() << "DIRECT_CHANNEL_GRALLOC not supported by HAL, skipping";
+    }
+    static constexpr uint64_t kBufferUsage =
+        static_cast<uint64_t>(BufferUsage::SENSOR_DIRECT_DATA) |
+        static_cast<uint64_t>(BufferUsage::CPU_READ_OFTEN) |
+        static_cast<uint64_t>(BufferUsage::CPU_WRITE_RARELY);
+    uint32_t stride = 0;
+    buffer_handle_t bufferHandle;
+    android::status_t status = android::GraphicBufferAllocator::get().allocate(
+        ISensors::DIRECT_REPORT_SENSOR_EVENT_TOTAL_LENGTH, 1,
+        static_cast<int>(PixelFormat::BLOB), 1, kBufferUsage, &bufferHandle, &stride,
+        "sensorservice_vts");
+    ASSERT_TRUE(status == android::OK) << "failed to allocate memory";
+
+    std::shared_ptr<IDirectReportChannel> chan;
+    res = manager_->createGrallocDirectChannel(ScopedFileDescriptor(bufferHandle->data[0]),
+        ISensors::DIRECT_REPORT_SENSOR_EVENT_TOTAL_LENGTH, &chan);
+    EXPECT_OK(res);
+    ASSERT_NE(chan, nullptr);
+}
+
+TEST_P(SensorManagerTest, EnableAndDisableSensor) {
+    std::vector<SensorInfo> sensorList;
+    auto res = GetSensorList(
+        &sensorList, [](const auto& info) { return info.type == SensorType::ACCELEROMETER; });
+    ASSERT_OK(res);
+
+    SensorInfo info;
+    res = manager_->getDefaultSensor(SensorType::ACCELEROMETER, &info);
+    if (sensorList.empty()) {
+        GTEST_SKIP() << "No accelerometer sensor, skipping";
+    } else {
+        ASSERT_OK(res);
+        ASSERT_THAT(sensorList, Contains(info));
+    }
+    std::shared_ptr<EventCallback> mSensorEventCallback =
+        ndk::SharedRefBase::make<EventCallback>();
+    std::shared_ptr<IEventQueue> mSensorEventQueue;
+    ASSERT_OK(manager_->createEventQueue(mSensorEventCallback, &mSensorEventQueue));
+    ASSERT_OK(mSensorEventQueue->enableSensor(info.sensorHandle, info.minDelayUs, 0));
+    mSensorEventCallback->waitForEvent();
+    ASSERT_OK(mSensorEventQueue->disableSensor(info.sensorHandle));
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(SensorManagerTest);
