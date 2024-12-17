@@ -19,18 +19,18 @@ package android.frameworks.devicestate;
 @VintfStability
 @Backing(type="int")
 enum ErrorCode {
-     /**
+    /**
      * Successful call
      */
-    OK = 0,
+    OK,
 
     /**
      * Invalid argument
      */
-    BAD_INPUT = 1,
+    BAD_INPUT,
 
     /**
      * Trying to register a second listener from the same process
      */
-    ALREADY_EXISTS = 1,
+    ALREADY_EXISTS,
 }

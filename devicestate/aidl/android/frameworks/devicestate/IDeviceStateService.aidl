@@ -20,7 +20,7 @@ import android.frameworks.devicestate.IDeviceStateListener;
 
 @VintfStability
 interface IDeviceStateService {
-     /**
+    /**
      * Registers a listener to receive notifications from the device state manager.
      * <p>Note that only one callback can be registered per-process.</p>
      *
