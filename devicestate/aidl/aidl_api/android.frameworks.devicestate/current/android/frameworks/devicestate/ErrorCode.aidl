@@ -34,7 +34,7 @@
 package android.frameworks.devicestate;
 @Backing(type="int") @VintfStability
 enum ErrorCode {
-  OK = 0,
-  BAD_INPUT = 1,
-  ALREADY_EXISTS = 1,
+  OK,
+  BAD_INPUT,
+  ALREADY_EXISTS,
 }
