@@ -14,41 +14,48 @@
  * limitations under the License.
  */
 
-#include <aidl/Gtest.h>
 #include <aidl/Vintf.h>
 #include <aidl/android/frameworks/automotive/power/ICarPowerServer.h>
-#include <aidl/android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
-#include <android/binder_manager.h>
-#include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
+
+#include "PowerPolicyInterfaceTest.h"
 
 namespace {
 
 using ::aidl::android::frameworks::automotive::power::ICarPowerServer;
-using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
 using ::android::ProcessState;
-using ::ndk::ScopedAStatus;
-using ::ndk::SpAIBinder;
 
 }  // namespace
 
 class CarPowerServerAidlTest : public ::testing::TestWithParam<std::string> {
    public:
-    virtual void SetUp() override {
-        SpAIBinder binder(AServiceManager_getService(GetParam().c_str()));
-        ASSERT_NE(binder.get(), nullptr);
-        carPowerServer = ICarPowerServer::fromBinder(binder);
-    }
+    virtual void SetUp() override { powerPolicyTest.SetUp(GetParam()); }
 
-    std::shared_ptr<ICarPowerServer> carPowerServer;
+    PowerPolicyInterfaceTest<ICarPowerServer> powerPolicyTest;
 };
 
 TEST_P(CarPowerServerAidlTest, TestGetCurrentPowerPolicy) {
-    CarPowerPolicy policy;
+    powerPolicyTest.TestGetCurrentPowerPolicy();
+}
 
-    ScopedAStatus status = carPowerServer->getCurrentPowerPolicy(&policy);
+TEST_P(CarPowerServerAidlTest, TestGetPowerComponentState) {
+    powerPolicyTest.TestGetPowerComponentState();
+}
 
-    ASSERT_TRUE(status.isOk() || status.getServiceSpecificError() == EX_ILLEGAL_STATE);
+TEST_P(CarPowerServerAidlTest, TestGetPowerComponentState_invalidComponent) {
+    powerPolicyTest.TestGetPowerComponentState_invalidComponent();
+}
+
+TEST_P(CarPowerServerAidlTest, TestRegisterCallback) {
+    powerPolicyTest.TestRegisterCallback();
+}
+
+TEST_P(CarPowerServerAidlTest, TestRegisterCallback_doubleRegistering) {
+    powerPolicyTest.TestRegisterCallback_doubleRegistering();
+}
+
+TEST_P(CarPowerServerAidlTest, TestUnegisterNotRegisteredCallback) {
+    powerPolicyTest.TestUnegisterNotRegisteredCallback();
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CarPowerServerAidlTest);
