@@ -147,6 +147,8 @@ class CameraDeviceCallback : public BnCameraDeviceCallback {
     };
 
    protected:
+    bool mSupportsPartialResults = false;
+    int32_t mPartialResultCount = 0;
     bool mError = false;
     LocalCameraDeviceStatus mLastStatus = UNINITIALIZED;
     mutable std::vector<LocalCameraDeviceStatus> mStatusesHit;
@@ -158,7 +160,8 @@ class CameraDeviceCallback : public BnCameraDeviceCallback {
     mutable bool mIsIdle = false;
 
    public:
-    CameraDeviceCallback() {}
+    CameraDeviceCallback(bool supportsPartialResults, int32_t partialResultCount) :
+        mSupportsPartialResults(supportsPartialResults), mPartialResultCount(partialResultCount) {}
 
     ndk::ScopedAStatus onDeviceError(ErrorCode in_errorCode,
                                      const CaptureResultExtras& /*in_resultExtras*/) override {
@@ -189,8 +192,14 @@ class CameraDeviceCallback : public BnCameraDeviceCallback {
     }
 
     ndk::ScopedAStatus onResultReceived(
-        const CaptureMetadataInfo& /*in_result*/, const CaptureResultExtras& /*in_resultExtras*/,
+        const CaptureMetadataInfo& /*in_result*/, const CaptureResultExtras& in_resultExtras,
         const std::vector<PhysicalCaptureResultInfo>& /*in_physicalCaptureResultInfos*/) override {
+        if (mSupportsPartialResults &&
+                (in_resultExtras.partialResultCount != mPartialResultCount)) {
+            ALOGV("%s: Ignoring requestId: %d parial count: %d", __FUNCTION__,
+                    in_resultExtras.requestId, in_resultExtras.partialResultCount);
+            return ndk::ScopedAStatus::ok();
+        }
         Mutex::Autolock l(mLock);
         mLastStatus = RESULT_RECEIVED;
         mStatusesHit.push_back(mLastStatus);
@@ -411,8 +420,17 @@ class VtsAidlCameraServiceTargetTest : public ::testing::TestWithParam<std::stri
             EXPECT_TRUE(cStatus);
             EXPECT_FALSE(rawMetadata.isEmpty());
 
+            bool partialResultSupported = false;
+            int32_t partialResultCount = 0;
+            auto entry = rawMetadata.find(ANDROID_REQUEST_PARTIAL_RESULT_COUNT);
+            if (entry.count > 0) {
+                partialResultCount = entry.data.i32[0];
+                partialResultSupported = true;
+            }
+
             std::shared_ptr<CameraDeviceCallback> callbacks =
-                ndk::SharedRefBase::make<CameraDeviceCallback>();
+                ndk::SharedRefBase::make<CameraDeviceCallback>(partialResultSupported,
+                        partialResultCount);
             std::shared_ptr<ICameraDeviceUser> deviceRemote = nullptr;
             ret = mCameraService->connectDevice(callbacks, it.cameraId, &deviceRemote);
             EXPECT_TRUE(ret.isOk());
