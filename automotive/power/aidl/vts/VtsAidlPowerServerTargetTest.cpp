@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,53 +15,53 @@
  */
 
 #include <aidl/Vintf.h>
-#include <aidl/android/frameworks/automotive/powerpolicy/ICarPowerPolicyServer.h>
+#include <aidl/android/frameworks/automotive/power/ICarPowerServer.h>
 #include <binder/ProcessState.h>
 
 #include "PowerPolicyInterfaceTest.h"
 
 namespace {
 
-using ::aidl::android::frameworks::automotive::powerpolicy::ICarPowerPolicyServer;
+using ::aidl::android::frameworks::automotive::power::ICarPowerServer;
 using ::android::ProcessState;
 
 }  // namespace
 
-class PowerPolicyAidlTest : public ::testing::TestWithParam<std::string> {
+class CarPowerServerAidlTest : public ::testing::TestWithParam<std::string> {
    public:
     virtual void SetUp() override { powerPolicyTest.SetUp(GetParam()); }
 
-    PowerPolicyInterfaceTest<ICarPowerPolicyServer> powerPolicyTest;
+    PowerPolicyInterfaceTest<ICarPowerServer> powerPolicyTest;
 };
 
-TEST_P(PowerPolicyAidlTest, TestGetCurrentPowerPolicy) {
+TEST_P(CarPowerServerAidlTest, TestGetCurrentPowerPolicy) {
     powerPolicyTest.TestGetCurrentPowerPolicy();
 }
 
-TEST_P(PowerPolicyAidlTest, TestGetPowerComponentState) {
+TEST_P(CarPowerServerAidlTest, TestGetPowerComponentState) {
     powerPolicyTest.TestGetPowerComponentState();
 }
 
-TEST_P(PowerPolicyAidlTest, TestGetPowerComponentState_invalidComponent) {
+TEST_P(CarPowerServerAidlTest, TestGetPowerComponentState_invalidComponent) {
     powerPolicyTest.TestGetPowerComponentState_invalidComponent();
 }
 
-TEST_P(PowerPolicyAidlTest, TestRegisterCallback) {
+TEST_P(CarPowerServerAidlTest, TestRegisterCallback) {
     powerPolicyTest.TestRegisterCallback();
 }
 
-TEST_P(PowerPolicyAidlTest, TestRegisterCallback_doubleRegistering) {
+TEST_P(CarPowerServerAidlTest, TestRegisterCallback_doubleRegistering) {
     powerPolicyTest.TestRegisterCallback_doubleRegistering();
 }
 
-TEST_P(PowerPolicyAidlTest, TestUnegisterNotRegisteredCallback) {
+TEST_P(CarPowerServerAidlTest, TestUnegisterNotRegisteredCallback) {
     powerPolicyTest.TestUnegisterNotRegisteredCallback();
 }
 
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(PowerPolicyAidlTest);
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CarPowerServerAidlTest);
 INSTANTIATE_TEST_SUITE_P(
-    CarPowerPolicyServer, PowerPolicyAidlTest,
-    ::testing::ValuesIn(android::getAidlHalInstanceNames(ICarPowerPolicyServer::descriptor)),
+    CarPowerServer, CarPowerServerAidlTest,
+    ::testing::ValuesIn(android::getAidlHalInstanceNames(ICarPowerServer::descriptor)),
     android::PrintInstanceNameToString);
 
 int main(int argc, char** argv) {

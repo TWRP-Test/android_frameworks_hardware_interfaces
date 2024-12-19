@@ -50,4 +50,5 @@ interface ICameraDeviceUser {
   void updateOutputConfiguration(in int streamId, in android.frameworks.cameraservice.device.OutputConfiguration outputConfiguration);
   void waitUntilIdle();
   boolean isPrimaryClient();
+  android.frameworks.cameraservice.device.SubmitInfo startStreaming(in int[] streamIdxArray, in int[] surfaceIdxArray);
 }

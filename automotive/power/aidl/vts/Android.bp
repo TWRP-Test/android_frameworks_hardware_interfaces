@@ -32,7 +32,31 @@ cc_test {
         "libbinder_ndk",
     ],
     static_libs: [
-        "android.frameworks.automotive.powerpolicy-V2-ndk",
+        "android.frameworks.automotive.powerpolicy-V3-ndk",
+        "libgmock",
+    ],
+    test_suites: [
+        "general-tests",
+        "vts",
+    ],
+}
+
+cc_test {
+    name: "VtsAidlPowerServerTargetTest",
+    defaults: [
+        "VtsHalTargetTestDefaults",
+        "use_libaidlvintf_gtest_helper_static",
+    ],
+    srcs: [
+        "VtsAidlPowerServerTargetTest.cpp",
+    ],
+    shared_libs: [
+        "libbinder",
+        "libbinder_ndk",
+    ],
+    static_libs: [
+        "android.frameworks.automotive.power-V1-ndk",
+        "android.frameworks.automotive.powerpolicy-V3-ndk",
         "libgmock",
     ],
     test_suites: [
