@@ -117,8 +117,8 @@ cc_test {
         "android.hardware.common.fmq-V1-ndk",
         "android.hardware.camera.common-helper",
         "android.frameworks.cameraservice.common-V1-ndk",
-        "android.frameworks.cameraservice.device-V2-ndk",
-        "android.frameworks.cameraservice.service-V2-ndk",
+        "android.frameworks.cameraservice.device-V3-ndk",
+        "android.frameworks.cameraservice.service-V3-ndk",
         "libaidlcommonsupport",
         "libfmq",
         "libarect",
@@ -132,7 +132,6 @@ cc_test {
         "libnativewindow",
         "liblog",
     ],
-
     test_config: "VtsAidlCameraServiceTargetTest.xml",
     test_suites: ["vts"],
 }
