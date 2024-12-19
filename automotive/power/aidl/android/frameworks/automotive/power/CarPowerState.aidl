@@ -32,7 +32,7 @@ enum CarPowerState {
     SHUTDOWN_PREPARE = 7, // System getting ready for shutdown or suspend, application expect to cleanup and be ready to suspend
     SHUTDOWN_CANCELLED = 8, // Shutdown cancelled, returning to normal state
     HIBERNATION_ENTER = 9, // System entering hibernation (suspend to disk)
-    HIBERNATION_EXIT = 10, // Ssytem waking up from hibernation
+    HIBERNATION_EXIT = 10, // System waking up from hibernation
     PRE_SHUTDOWN_PREPARE = 11, // Shutdown initiated, but display on
     POST_SUSPEND_ENTER = 12, // Car power service and VHAL finish processing to enter deep sleep, device about to sleep
     POST_SHUTDOWN_ENTER = 13, // Car power service and VHAL finish processing to shutdown, device about to power off
