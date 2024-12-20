@@ -102,6 +102,8 @@ interface ICarPowerServer {
    * <p>Multiple listeners are allowed to be registered to one client.
    *
    * @param listener Listener to register.
+   * @throws IllegalArgumentException if the listener is already registered.
+   * @throws IllegalStateException if the listener is dead.
    */
   void registerPowerStateListener(in ICarPowerStateChangeListener listener);
 
@@ -109,6 +111,7 @@ interface ICarPowerServer {
    * Unregister a power state change listener with the car power daemon.
    *
    * @param listener Listener to unregister.
+   * @throws IllegalArgumentException if the listener is not registered.
    */
   void unregisterPowerStateListener(in ICarPowerStateChangeListener listener);
 
@@ -121,6 +124,8 @@ interface ICarPowerServer {
    * <p>Multiple listeners are allowed to be registered to one client.
    *
    * @param listener Listener to register.
+   * @throws IllegalArgumentException if the listener is already registered.
+   * @throws IllegalStateException if the listener is dead.
    */
   void registerPowerStateListenerWithCompletion(
     in ICarPowerStateChangeListenerWithCompletion listener);
@@ -129,6 +134,7 @@ interface ICarPowerServer {
    * Unregister a power state change listener with completion with the car power daemon.
    *
    * @param listener Listener to unregister.
+   * @throws IllegalArgumentException if the listener is not registered.
    */
   void unregisterPowerStateListenerWithCompletion(
     in ICarPowerStateChangeListenerWithCompletion listener);
