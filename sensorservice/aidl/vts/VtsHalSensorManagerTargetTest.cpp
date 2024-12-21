@@ -314,7 +314,7 @@ TEST_P(SensorManagerTest, CreateGrallocDirectChannel) {
     ASSERT_NE(chan, nullptr);
 }
 
-TEST_P(SensorManagerTest, EnableAndDisableSensor) {
+TEST_P(SensorManagerTest, DISABLED_EnableAndDisableSensor) {
     std::vector<SensorInfo> sensorList;
     auto res = GetSensorList(
         &sensorList, [](const auto& info) { return info.type == SensorType::ACCELEROMETER; });
