@@ -77,7 +77,7 @@ class PowerPolicyInterfaceTest {
         ASSERT_FALSE(status.isOk());
     }
 
-    void TestRegisterCallback() {
+    void TestRegisterPowerPolicyCallback() {
         std::shared_ptr<MockPowerPolicyChangeCallback> callback =
             ndk::SharedRefBase::make<MockPowerPolicyChangeCallback>();
         aafap::CarPowerPolicyFilter filter;
@@ -93,7 +93,7 @@ class PowerPolicyInterfaceTest {
         ASSERT_TRUE(status.isOk());
     }
 
-    void TestRegisterCallback_doubleRegistering() {
+    void TestRegisterPowerPolicyCallback_doubleRegistering() {
         std::shared_ptr<MockPowerPolicyChangeCallback> callback =
             ndk::SharedRefBase::make<MockPowerPolicyChangeCallback>();
         aafap::CarPowerPolicyFilter filter;
@@ -110,7 +110,7 @@ class PowerPolicyInterfaceTest {
         ASSERT_EQ(status.getServiceSpecificError(), EX_ILLEGAL_ARGUMENT);
     }
 
-    void TestUnegisterNotRegisteredCallback() {
+    void TestUnegisterNotRegisteredPowerPolicyCallback() {
         std::shared_ptr<MockPowerPolicyChangeCallback> callback =
             ndk::SharedRefBase::make<MockPowerPolicyChangeCallback>();
 

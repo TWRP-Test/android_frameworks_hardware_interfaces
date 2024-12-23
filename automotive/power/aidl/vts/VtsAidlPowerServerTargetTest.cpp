@@ -15,6 +15,7 @@
  */
 
 #include <aidl/Vintf.h>
+#include <aidl/android/frameworks/automotive/power/BnCarPowerStateChangeListener.h>
 #include <aidl/android/frameworks/automotive/power/ICarPowerServer.h>
 #include <binder/ProcessState.h>
 
@@ -22,8 +23,19 @@
 
 namespace {
 
+using ::aidl::android::frameworks::automotive::power::BnCarPowerStateChangeListener;
+using ::aidl::android::frameworks::automotive::power::CarPowerState;
 using ::aidl::android::frameworks::automotive::power::ICarPowerServer;
 using ::android::ProcessState;
+
+class MockPowerStateChangeListener : public BnCarPowerStateChangeListener {
+   public:
+    MockPowerStateChangeListener() {}
+
+    ndk::ScopedAStatus onStateChanged([[maybe_unused]] CarPowerState state) override {
+        return ndk::ScopedAStatus::ok();
+    }
+};
 
 }  // namespace
 
@@ -46,16 +58,55 @@ TEST_P(CarPowerServerAidlTest, TestGetPowerComponentState_invalidComponent) {
     powerPolicyTest.TestGetPowerComponentState_invalidComponent();
 }
 
-TEST_P(CarPowerServerAidlTest, TestRegisterCallback) {
-    powerPolicyTest.TestRegisterCallback();
+TEST_P(CarPowerServerAidlTest, TestRegisterPowerPolicyCallback) {
+    powerPolicyTest.TestRegisterPowerPolicyCallback();
 }
 
-TEST_P(CarPowerServerAidlTest, TestRegisterCallback_doubleRegistering) {
-    powerPolicyTest.TestRegisterCallback_doubleRegistering();
+TEST_P(CarPowerServerAidlTest, TestRegisterPowerPolicyCallback_doubleRegistering) {
+    powerPolicyTest.TestRegisterPowerPolicyCallback_doubleRegistering();
 }
 
-TEST_P(CarPowerServerAidlTest, TestUnegisterNotRegisteredCallback) {
-    powerPolicyTest.TestUnegisterNotRegisteredCallback();
+TEST_P(CarPowerServerAidlTest, TestUnegisterNotRegisteredPowerPolicyCallback) {
+    powerPolicyTest.TestUnegisterNotRegisteredPowerPolicyCallback();
+}
+
+TEST_P(CarPowerServerAidlTest, TestRegisterPowerStateListener) {
+    std::shared_ptr<MockPowerStateChangeListener> listener =
+        ndk::SharedRefBase::make<MockPowerStateChangeListener>();
+    std::shared_ptr<ICarPowerServer> powerServer = powerPolicyTest.powerPolicyServer;
+
+    ndk::ScopedAStatus status = powerServer->registerPowerStateListener(listener);
+
+    ASSERT_TRUE(status.isOk());
+
+    status = powerServer->unregisterPowerStateListener(listener);
+
+    ASSERT_TRUE(status.isOk());
+}
+
+TEST_P(CarPowerServerAidlTest, TestRegisterPowerStateListener_doubleRegistering) {
+    std::shared_ptr<MockPowerStateChangeListener> listener =
+        ndk::SharedRefBase::make<MockPowerStateChangeListener>();
+    std::shared_ptr<ICarPowerServer> powerServer = powerPolicyTest.powerPolicyServer;
+
+    ndk::ScopedAStatus status = powerServer->registerPowerStateListener(listener);
+
+    ASSERT_TRUE(status.isOk());
+
+    status = powerServer->registerPowerStateListener(listener);
+
+    ASSERT_FALSE(status.isOk());
+    ASSERT_EQ(status.getServiceSpecificError(), EX_ILLEGAL_ARGUMENT);
+}
+
+TEST_P(CarPowerServerAidlTest, TestUnegisterNotRegisteredPowerStateListener) {
+    std::shared_ptr<MockPowerStateChangeListener> listener =
+        ndk::SharedRefBase::make<MockPowerStateChangeListener>();
+    std::shared_ptr<ICarPowerServer> powerServer = powerPolicyTest.powerPolicyServer;
+
+    ndk::ScopedAStatus status = powerServer->unregisterPowerStateListener(listener);
+
+    ASSERT_FALSE(status.isOk());
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CarPowerServerAidlTest);
