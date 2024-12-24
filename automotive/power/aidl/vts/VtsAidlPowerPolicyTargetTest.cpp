@@ -46,16 +46,16 @@ TEST_P(PowerPolicyAidlTest, TestGetPowerComponentState_invalidComponent) {
     powerPolicyTest.TestGetPowerComponentState_invalidComponent();
 }
 
-TEST_P(PowerPolicyAidlTest, TestRegisterCallback) {
-    powerPolicyTest.TestRegisterCallback();
+TEST_P(PowerPolicyAidlTest, TestRegisterPowerPolicyCallback) {
+    powerPolicyTest.TestRegisterPowerPolicyCallback();
 }
 
-TEST_P(PowerPolicyAidlTest, TestRegisterCallback_doubleRegistering) {
-    powerPolicyTest.TestRegisterCallback_doubleRegistering();
+TEST_P(PowerPolicyAidlTest, TestRegisterPowerPolicyCallback_doubleRegistering) {
+    powerPolicyTest.TestRegisterPowerPolicyCallback_doubleRegistering();
 }
 
-TEST_P(PowerPolicyAidlTest, TestUnegisterNotRegisteredCallback) {
-    powerPolicyTest.TestUnegisterNotRegisteredCallback();
+TEST_P(PowerPolicyAidlTest, TestUnegisterNotRegisteredPowerPolicyCallback) {
+    powerPolicyTest.TestUnegisterNotRegisteredPowerPolicyCallback();
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(PowerPolicyAidlTest);
