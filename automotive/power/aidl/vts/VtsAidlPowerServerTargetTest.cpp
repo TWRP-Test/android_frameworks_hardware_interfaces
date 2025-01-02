@@ -17,6 +17,7 @@
 #include <aidl/Vintf.h>
 #include <aidl/android/frameworks/automotive/power/BnCarPowerStateChangeListener.h>
 #include <aidl/android/frameworks/automotive/power/ICarPowerServer.h>
+#include <android_car_feature.h>
 #include <binder/ProcessState.h>
 
 #include "PowerPolicyInterfaceTest.h"
@@ -27,6 +28,7 @@ using ::aidl::android::frameworks::automotive::power::BnCarPowerStateChangeListe
 using ::aidl::android::frameworks::automotive::power::CarPowerState;
 using ::aidl::android::frameworks::automotive::power::ICarPowerServer;
 using ::android::ProcessState;
+using ::android::car::feature::native_power_notifications;
 
 class MockPowerStateChangeListener : public BnCarPowerStateChangeListener {
    public:
@@ -41,7 +43,12 @@ class MockPowerStateChangeListener : public BnCarPowerStateChangeListener {
 
 class CarPowerServerAidlTest : public ::testing::TestWithParam<std::string> {
    public:
-    virtual void SetUp() override { powerPolicyTest.SetUp(GetParam()); }
+    virtual void SetUp() override {
+        if (!native_power_notifications()) {
+            GTEST_SKIP() << "native_power_notification feature is not enabled";
+        }
+        powerPolicyTest.SetUp(GetParam());
+    }
 
     PowerPolicyInterfaceTest<ICarPowerServer> powerPolicyTest;
 };
