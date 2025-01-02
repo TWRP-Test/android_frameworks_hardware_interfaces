@@ -36,6 +36,7 @@ cc_test {
         "libgmock",
     ],
     test_suites: [
+        "automotive-general-tests",
         "general-tests",
         "vts",
     ],
@@ -60,6 +61,7 @@ cc_test {
         "libgmock",
     ],
     test_suites: [
+        "automotive-general-tests",
         "general-tests",
         "vts",
     ],
