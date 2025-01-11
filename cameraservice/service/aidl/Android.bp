@@ -11,7 +11,7 @@ aidl_interface {
         "android.frameworks.cameraservice.common-V1",
         "android.frameworks.cameraservice.device-V3",
     ],
-    frozen: false,
+    frozen: true,
     backend: {
         cpp: {
             enabled: false,
@@ -41,6 +41,13 @@ aidl_interface {
             imports: [
                 "android.frameworks.cameraservice.common-V1",
                 "android.frameworks.cameraservice.device-V2",
+            ],
+        },
+        {
+            version: "3",
+            imports: [
+                "android.frameworks.cameraservice.common-V1",
+                "android.frameworks.cameraservice.device-V3",
             ],
         },
 

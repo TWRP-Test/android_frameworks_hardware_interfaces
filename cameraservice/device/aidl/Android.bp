@@ -15,7 +15,7 @@ aidl_interface {
     include_dirs: [
         "frameworks/native/aidl/gui",
     ],
-    frozen: false,
+    frozen: true,
     backend: {
         cpp: {
             enabled: false,
@@ -43,6 +43,14 @@ aidl_interface {
         },
         {
             version: "2",
+            imports: [
+                "android.frameworks.cameraservice.common-V1",
+                "android.hardware.common.fmq-V1",
+                "android.hardware.common-V2",
+            ],
+        },
+        {
+            version: "3",
             imports: [
                 "android.frameworks.cameraservice.common-V1",
                 "android.hardware.common.fmq-V1",
