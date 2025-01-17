@@ -67,7 +67,7 @@ class EventCallback : public BnEventQueueCallback {
     }
     void waitForEvent() {
         std::unique_lock<std::mutex> lck(mtx);
-        cv.wait_for(lck, std::chrono::seconds(1), [this](){ return eventReceived; });
+        cv.wait_for(lck, std::chrono::seconds(10), [this](){ return eventReceived; });
         EXPECT_TRUE(eventReceived) << "wait event timeout";
     }
    private:
@@ -314,7 +314,7 @@ TEST_P(SensorManagerTest, CreateGrallocDirectChannel) {
     ASSERT_NE(chan, nullptr);
 }
 
-TEST_P(SensorManagerTest, DISABLED_EnableAndDisableSensor) {
+TEST_P(SensorManagerTest, EnableAndDisableSensor) {
     std::vector<SensorInfo> sensorList;
     auto res = GetSensorList(
         &sensorList, [](const auto& info) { return info.type == SensorType::ACCELEROMETER; });
