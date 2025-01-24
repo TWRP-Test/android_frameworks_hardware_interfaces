@@ -1,3 +1,2 @@
 # Bug component:151862
-bduddie@google.com
-arthuri@google.com
+include platform/frameworks/native:/services/sensorservice/OWNERS
