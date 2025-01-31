@@ -83,6 +83,8 @@ static constexpr int kVGAImageWidth = 640;
 static constexpr int kVGAImageHeight = 480;
 static constexpr int kNumRequests = 4;
 
+static const char kCameraServiceDisabledProperty[] = "config.disable_cameraservice";
+
 #define IDLE_TIMEOUT 2000000000  // ns
 
 using scoped_unique_image_reader = std::unique_ptr<AImageReader, decltype(&AImageReader_delete)>;
@@ -273,6 +275,10 @@ class CameraDeviceCallback : public BnCameraDeviceCallback {
     }
 };
 
+static bool isCameraServiceDisabled() {
+    return ::android::base::GetBoolProperty(kCameraServiceDisabledProperty, false);
+}
+
 static bool convertFromAidlCloned(const AidlCameraMetadata& metadata, CameraMetadata* rawMetadata) {
     const camera_metadata* buffer = (camera_metadata_t*)(metadata.metadata.data());
     size_t expectedSize = metadata.metadata.size();
@@ -294,6 +300,11 @@ struct StreamConfiguration {
 class VtsAidlCameraServiceTargetTest : public ::testing::TestWithParam<std::string> {
    public:
     void SetUp() override {
+        if (isCameraServiceDisabled()) {
+            ALOGI("Camera service is disabled on the device");
+            GTEST_SKIP() << "Camera service disabled, skipping this test";
+        }
+
         bool success = ABinderProcess_setThreadPoolMaxThreadCount(5);
         ASSERT_TRUE(success);
         ABinderProcess_startThreadPool();
