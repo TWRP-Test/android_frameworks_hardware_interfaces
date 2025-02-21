@@ -27,6 +27,7 @@
 #include <android/binder_process.h>
 #include <android/binder_status.h>
 #include <bufferqueueconverter/BufferQueueConverter.h>
+#include <hidl/ServiceManagement.h>
 
 namespace {
 
@@ -84,6 +85,11 @@ class CarDisplayAidlTest : public ::testing::TestWithParam<std::string> {
 TEST_P(CarDisplayAidlTest, getIGBPObject) {
     LOG(INFO) << "Test getHGraphicBufferProducer method";
 
+    if (!android::hardware::isHidlSupported()) {
+        // This test assumes that HIDL is supported on the target device.
+        GTEST_SKIP() << "Assumption failed; HIDL is not supported.";
+    }
+
     for (const auto& id : mDisplayIds) {
         // Get a display info.
         DisplayDesc desc;
@@ -112,6 +118,10 @@ TEST_P(CarDisplayAidlTest, getIGBPObject) {
 TEST_P(CarDisplayAidlTest, showWindow) {
     LOG(INFO) << "Test showWindow method";
     for (const auto& id : mDisplayIds) {
+        // Get a Surface object to register a target device.
+        aidl::android::view::Surface shimSurface;
+        ASSERT_TRUE(mDisplayProxy->getSurface(id, &shimSurface).isOk());
+
         ASSERT_TRUE(mDisplayProxy->showWindow(id).isOk());
     }
 }
@@ -120,6 +130,10 @@ TEST_P(CarDisplayAidlTest, hideWindow) {
     LOG(INFO) << "Test hideWindow method";
 
     for (const auto& id : mDisplayIds) {
+        // Get a Surface object to register a target device.
+        aidl::android::view::Surface shimSurface;
+        ASSERT_TRUE(mDisplayProxy->getSurface(id, &shimSurface).isOk());
+
         ASSERT_TRUE(mDisplayProxy->hideWindow(id).isOk());
     }
 }
