@@ -41,7 +41,9 @@ class PowerPolicyInterfaceTest {
    public:
     void SetUp(const std::string& serviceName) {
         ndk::SpAIBinder binder(AServiceManager_getService(serviceName.c_str()));
-        ASSERT_NE(binder.get(), nullptr);
+        if (binder.get() == nullptr) {
+            GTEST_SKIP() << "Service " << serviceName << " not found";
+        }
         powerPolicyServer = T::fromBinder(binder);
     }
 
