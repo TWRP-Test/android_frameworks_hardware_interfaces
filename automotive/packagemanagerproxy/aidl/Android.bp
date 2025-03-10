@@ -16,7 +16,7 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-// Audomotive Telemetry interfaces.
+// Automotive Telemetry interfaces.
 //
 // Depend on "google.sdv.packagemanagerproxy-V1-ndk". Change "V1" to desired version (it
 // must be always provided), and "ndk" to a desired AIDL back-end.
@@ -28,6 +28,7 @@ aidl_interface {
     ],
     vendor_available: true,
     stability: "vintf",
+    min_sdk_version: "35",
     backend: {
         ndk: {
             enabled: true,
