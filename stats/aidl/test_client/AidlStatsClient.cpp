@@ -16,7 +16,6 @@
 #include <aidl/android/frameworks/stats/IStats.h>
 #include <android/binder_manager.h>
 #include <getopt.h>
-#include <statslog.h>
 
 #include <iostream>
 
@@ -124,7 +123,7 @@ int main(int argc, char* argv[]) {
     // get instance of the aidl version
     const std::string instance = std::string() + IStats::descriptor + "/default";
     std::shared_ptr<IStats> service =
-        IStats::fromBinder(ndk::SpAIBinder(AServiceManager_getService(instance.c_str())));
+        IStats::fromBinder(ndk::SpAIBinder(AServiceManager_waitForService(instance.c_str())));
     if (!service) {
         std::cerr << "No Stats aidl HAL";
         return 1;
