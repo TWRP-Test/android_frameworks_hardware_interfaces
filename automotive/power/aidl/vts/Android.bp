@@ -14,11 +14,6 @@
 // limitations under the License.
 //
 
-package {
-    default_team: "trendy_team_aaos_power_triage",
-    default_applicable_licenses: ["Android-Apache-2.0"],
-}
-
 cc_test {
     name: "VtsAidlPowerPolicyTargetTest",
     defaults: [
